@@ -27,7 +27,7 @@ One Go module, one repository:
 
 ## Contributing and security
 
-See [CONTRIBUTING.md](CONTRIBUTING.md). Report vulnerabilities privately as described in
+See [CONTRIBUTING.md](CONTRIBUTING.md); contributions are voluntary and unpaid. Report vulnerabilities privately as described in
 [SECURITY.md](SECURITY.md).
 
 ## License

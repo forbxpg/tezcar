@@ -57,8 +57,13 @@ terms:
    Change License, or under commercial terms; and a patent license on the same terms for
    any patent claims you can license that the contribution necessarily infringes. You keep
    the copyright in your contribution.
+3. **No compensation.** Contributions are voluntary and unpaid. You are not entitled to
+   any payment, royalty, equity, revenue share or other compensation for a contribution,
+   including when tezcar or your contribution is used commercially. Contributing does not
+   create employment, partnership or any other relationship with forbxpg.
 
-If you cannot agree to these terms, open an issue instead of a pull request.
+Submitting a contribution means you agree to all three terms. If you cannot, open an issue
+instead of a pull request.
 
 ## Security
 
