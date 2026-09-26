@@ -1,0 +1,35 @@
+services:
+  postgres:
+    # official postgis/postgis is amd64-only; imresamu/postgis is the multi-arch build of the same image
+    image: imresamu/postgis:17-3.5
+    environment:
+      POSTGRES_USER: tezcar
+      POSTGRES_PASSWORD: tezcar
+      POSTGRES_DB: tezcar
+    ports: ["5432:5432"]
+    volumes: [pgdata:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U tezcar"]
+      interval: 5s
+
+  kafka:
+    # single broker in KRaft mode — enough for local dev
+    image: apache/kafka:4.1.0
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@localhost:9093
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+    ports: ["9092:9092"]
+
+  redis:
+    image: redis:8-alpine
+    ports: ["6379:6379"]
+
+volumes:
+  pgdata:
