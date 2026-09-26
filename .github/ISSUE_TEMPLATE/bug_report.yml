@@ -1,0 +1,29 @@
+name: Bug report
+description: Something does not work as documented. Vulnerabilities go to the security policy.
+labels: [bug]
+body:
+  - type: input
+    id: commit
+    attributes:
+      label: Commit
+    validations:
+      required: true
+  - type: dropdown
+    id: component
+    attributes:
+      label: Component
+      options: [Telematics, Rental, Payments, Identity (KYC), Zones and maps, Fleet operations, Notifications, Analytics, Other]
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected and actual behaviour
+    validations:
+      required: true
