@@ -4,6 +4,7 @@ package codec8
 
 import (
 	"encoding/binary"
+	"errors"
 	"fmt"
 	"io"
 )
@@ -12,6 +13,7 @@ const (
 	maxDataLen = 1280
 	minDataLen = 3
 	nullByte   = 0x00
+	crcLen     = 4
 )
 
 func validatePreamble(firstEightBytes [8]byte) error {
@@ -44,10 +46,36 @@ func validateFirstEightBytes(firstEightBytes [8]byte) (uint32, error) {
 	return dataLength, nil
 }
 
-// ReadFrame validates the incoming data from codec8 extended frames
-// and returns the frame's data field or an error if the data is invalid.
-// If the io ends before the frame is complete, an io.ErrUnexpectedEOF error is returned.
-// If the packet is complete then io.EOF is returned.
+func crc16(data []byte) uint16 {
+	crc := uint16(0)
+	for _, b := range data {
+		crc ^= uint16(b)
+		for i := 0; i < 8; i++ {
+			if crc&1 != 0 {
+				crc >>= 1
+				crc ^= 0xA001
+			} else {
+				crc >>= 1
+			}
+		}
+	}
+	return crc
+}
+
+// ReadFrame reads incoming data from a Codec 8 Extended.
+// It validates the frame's preamble, data length, and CRC.
+// If the preamble is invalid, the function returns an ErrInvalidPreamble error.
+// If the data length is invalid, the function returns an ErrInvalidDataLength error.
+// If the CRC is invalid, the function returns an ErrInvalidCRC error.
+// If the input reader returns an io.EOF error, the function returns an io.ErrUnexpectedEOF error.
+// If the input reader returns any other error, the function returns that error.
+// Finally, if the frame is valid, the function returns the frame's data field.
+// P.S: You must close the connection if you got errors like:
+// - ErrInvalidPreamble
+// - ErrInvalidDataLength
+// If you got ErrInvalidCRC, you can continue reading the next frame.
+// Also wrap up the connection with `bufio.Reader` and make sure
+// you have read deadlines set.
 func ReadFrame(r io.Reader) ([]byte, error) {
 	var firstEightBytes [8]byte
 	_, err := io.ReadFull(r, firstEightBytes[:])
@@ -58,6 +86,17 @@ func ReadFrame(r io.Reader) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	data := make([]byte, dataLength)
-	return data, nil // TODO: read the rest of the data from the reader
+	buf := make([]byte, dataLength+crcLen)
+	if _, err := io.ReadFull(r, buf); err != nil {
+		if errors.Is(err, io.EOF) {
+			return nil, io.ErrUnexpectedEOF
+		}
+		return nil, err
+	}
+	data := buf[:dataLength]
+	want := binary.BigEndian.Uint32(buf[dataLength:])
+	if got := uint32(crc16(data)); got != want {
+		return nil, fmt.Errorf("%w: expected %#04x, got %#04x", ErrInvalidCRC, want, got)
+	}
+	return data, nil
 }
