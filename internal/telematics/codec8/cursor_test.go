@@ -60,7 +60,7 @@ func TestCursorKeepsFirstError(t *testing.T) {
 	if got := c.u8(); got != 0 {
 		t.Errorf("u8 after an error = %d, want 0", got)
 	}
-	if c.err != first {
+	if c.err != first { //nolint:errorlint // identity on purpose: the first error must not be replaced
 		t.Errorf("err = %v, want the first error %v", c.err, first)
 	}
 	if c.off != 0 {

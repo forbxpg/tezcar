@@ -9,6 +9,7 @@ import (
 // Priority is the priority of a record.
 type Priority uint8
 
+// Priorities a device assigns to a record, as defined by the spec.
 const (
 	PriorityLow   Priority = iota // 0
 	PriorityHigh                  // 1
@@ -17,12 +18,12 @@ const (
 
 // GPS is the GPS data of a record.
 type GPS struct {
-	Latitude   int32  // in degrees * 10 ^ 7
 	Longitude  int32  // in degrees * 10 ^ 7
+	Latitude   int32  // in degrees * 10 ^ 7
 	Altitude   int16  // in meters
 	Angle      uint16 // in degrees
-	Speed      uint16 // in km/h
 	Satellites uint8  // number of satellites used in the fix
+	Speed      uint16 // in km/h
 }
 
 // IO is the IO data of a record.
